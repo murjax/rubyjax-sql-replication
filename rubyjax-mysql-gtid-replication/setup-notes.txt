@@ -1,0 +1,32 @@
+----- Setup steps -----
+1. Set bind-address and server-id on primary and replica.
+   Bind address allows other server to be seen externally. Server ID must be unique on each server.
+2. Set log-bin file location on both servers.
+3. Set relay-log file on replica.
+4. Set gtid-mode=ON and enforce-gtid-consistency=ON on both servers.
+5. Set log-replica-updates=ON and skip-replica-start=ON on replica.
+6. Create replication user on primary. Must use sha256_password.
+7. Grant replication slave to replication user. Flush privileges after.
+8. Change replication source on replica. Set source auto position to 1.
+9. Restart servers.
+10. Start replica on replica.
+11. Create database on primary.
+
+----- Setup commands -----
+6. CREATE USER 'replica_user'@'%' IDENTIFIED WITH sha256_password BY 'password';
+7. GRANT REPLICATION SLAVE ON *.* TO 'replica_user'@'%';
+   FLUSH PRIVILEGES;
+8. CHANGE REPLICATION SOURCE TO
+   SOURCE_HOST='primary_db',
+   SOURCE_PORT=3306,
+   SOURCE_USER='replica_user',
+   SOURCE_PASSWORD='password',
+   SOURCE_AUTO_POSITION=1;
+10. START REPLICA;
+
+----- Teardown steps -----
+1. Stop replica.
+2. Drop database on replica.
+3. Drop database on primary.
+4. Drop replica user on primary.
+5. Stop servers.

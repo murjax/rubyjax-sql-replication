@@ -1,0 +1,30 @@
+services:
+  master:
+    image: postgres:16.2-alpine3.19
+    container_name: primary_db
+    volumes:
+      - physical:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    restart: unless-stopped
+    ports:
+      - "5400:5432"
+  replica:
+    image: postgres:16.2-alpine3.19
+    container_name: replica_db
+    volumes:
+      - physical-replica-db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    restart: unless-stopped
+    ports:
+      - "5401:5432"
+volumes:
+  physical-primary-db-data:
+    name: physical-primary-db-data
+  physical-replica-db-data:
+    name: physical-replica-db-data

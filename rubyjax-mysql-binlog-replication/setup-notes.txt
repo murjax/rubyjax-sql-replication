@@ -1,0 +1,31 @@
+----- Setup steps -----
+1. Set bind-address and server-id on primary and replica.
+   Bind address allows other server to be seen externally. Server ID must be unique on each server.
+2. Create replication user on primary. Must use sha256_password.
+3. Grant replication slave to replication user. Flush privileges after.
+4. Obtain binary log coordinates from primary.
+5. Change replication source on replica. Specify binary log file and position from last step.
+6. Restart servers.
+7. Start replica on replica.
+8. Create database on primary.
+
+----- Setup commands -----
+2. CREATE USER 'replica_user'@'%' IDENTIFIED WITH sha256_password BY 'password';
+3. GRANT REPLICATION SLAVE ON *.* TO 'replica_user'@'%';
+   FLUSH PRIVILEGES;
+4. SHOW BINARY LOG STATUS
+5. CHANGE REPLICATION SOURCE TO
+   SOURCE_HOST='primary_db',
+   SOURCE_PORT=3306,
+   SOURCE_USER='replica_user',
+   SOURCE_PASSWORD='password',
+   SOURCE_LOG_FILE='binlog.000002',
+   SOURCE_LOG_POS=856;
+6. START REPLICA;
+
+----- Teardown steps -----
+1. Stop replica.
+2. Drop database on replica.
+3. Drop database on primary.
+4. Drop replica user on primary.
+5. Stop servers.

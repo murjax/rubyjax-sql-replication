@@ -1,0 +1,19 @@
+services:
+  primary:
+    image: mysql:8.4.0
+    container_name: primary_db
+    command: --bind-address=0.0.0.0 --server-id=1
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    restart: unless-stopped
+    ports:
+      - "3302:3306"
+  replica:
+    image: mysql:8.4.0
+    container_name: replica_db
+    command: --bind-address=0.0.0.0 --server-id=2
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    restart: unless-stopped
+    ports:
+      - "3303:3306"

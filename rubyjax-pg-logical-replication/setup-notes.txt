@@ -1,0 +1,44 @@
+----- Setup steps -----
+1. Check replication connections allowed via md5 in pg_hba.conf on both servers.
+2. Update these settings in postgresql.conf on both servers
+  wal_level = logical
+  max_wal_senders = 10
+  max_replication_losts = 10
+3. Restart servers
+4. Create databases and schemas on both servers.
+5. Alter tables with replica identity full on primary.
+6. Create publication on primary (use new database).
+7. Create subscription on replica (use new database).
+
+----- Setup commands -----
+5. ALTER TABLE users REPLICA IDENTITY FULL;
+6. CREATE PUBLICATION my_publication FOR ALL TABLES;
+7. CREATE SUBSCRIPTION replica_subscription CONNECTION 'dbname=pizza_deliveries host=primary_db user=postgres password=postgres' PUBLICATION my_publication;
+
+----- Schema change steps -----
+1. Delete subscriptions and replications from replica.
+2. Delete replication slot from primary.
+3. Delete publication from primary.
+4. Apply schema changes to both databases separately.
+5. Create publication on primary.
+6. Create subscription on replica.
+
+----- Replication Teardown steps -----
+1. Delete subscriptions and replications from replica.
+2. Delete replication slot from primary.
+3. Delete publication from primary.
+
+----- Replication Teardown commands -----
+1.
+  DELETE FROM pg_subscription;
+  DELETE FROM pg_subscription_rel;
+  DELETE FROM pg_replication_origin;
+2. SELECT pg_drop_replication_slot('replica_subscription');
+3. DROP PUBLICATION IF EXISTS my_publication;
+
+----- Full teradown steps -----
+1. Delete subscriptions and replications from replica.
+2. Delete replication slot from primary.
+3. Delete publication from primary.
+4. Drop databases from both servers.
+5. Stop both servers.

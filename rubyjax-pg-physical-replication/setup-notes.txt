@@ -1,0 +1,37 @@
+----- Setup steps -----
+1. Start the primary server.
+2. Create the replica role.
+3. Check replication connections allowed via md5 in pg_hba.conf on primary.
+4. Start the replica server.
+5. Clear the data directory on replica.
+6. Copy primary data files to replica using pg_basebackup.
+7. Restart both servers.
+
+----- Setup commands -----
+1. sudo docker compose up master
+2. CREATE ROLE replica_role WITH REPLICATION PASSWORD 'postgres' LOGIN;
+3. sudo docker exec -it primary_db bash
+   apk add vim
+   vim /var/lib/postgresql/data/pg_hba.conf
+4. sudo docker compose up replica
+5. sudo docker exec -it replica_db bash
+   rm -rf /var/lib/postgresql/data/*
+6. pg_basebackup -h primary_db -p 5432 -U replica_role -D /var/lib/postgresql/data/ -Fp -Xs -R
+7. sudo docker compose down
+   sudo docker compose up
+
+----- Teardown steps -----
+1. Delete the database from primary.
+2. Stop the replica server.
+3. Drop replica_user from primary.
+4. Stop the primary server, start the replica server.
+5. Delete the data files from replica.
+6. Stop replica server.
+
+----- Teardown commands -----
+3. DROP ROLE replica_role;
+4. sudo docker compose down master
+   sudo docker compose up replica
+5. sudo docker exec -it replica_db bash
+   rm -rf /var/lib/postgresql/data/*
+6. sudo docker compose down
