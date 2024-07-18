@@ -22,5 +22,8 @@ DELETE FROM users
 WHERE id = 1;
 
 -- Primary Teardown
+DROP PUBLICATION IF EXISTS my_publication;
+
+-- Alternate Primary Teardown
 SELECT pg_drop_replication_slot('replica_subscription');
 DROP PUBLICATION IF EXISTS my_publication;
